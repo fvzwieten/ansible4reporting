@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>Report Example</title>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 15px;
+        text-align: center;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      {% set ns = namespace(dept='', total_freemem=0, lines=0) %}
+      {% for server, data in hostvars.items() | sort(attribute='1.ansible_local.custom.department') %}
+        {% if not data.ansible_local.custom.department == ns.dept %}
+          {% if ns.total_freemem > 0 %}
+            {% if ns.lines > 1 %}
+              <tr>
+                <td></td>
+                <td>{{ns.total_freemem}}</td>
+              </tr>
+            {% endif %}
+            {% set ns.total_freemem = 0 %}
+            {% set ns.lines = 0 %}
+          {% endif %}
+          {% set ns.dept = data.ansible_local.custom.department %}
+          <tr>
+            <td colspan="2" style="background-color:black; color:white; font-weight:bold; text-align:left;">Department: {{ ns.dept }}</td>
+          </tr>
+          <tr>
+            <th>server name</th>
+            <th>free memory (mb)</th>
+          </tr>
+        {% endif %}
+        {% set ns.total_freemem = ns.total_freemem + data.ansible_facts.memfree_mb %}
+        {% set ns.lines = ns.lines + 1 %}
+        <tr>
+          <td>{{ data.ansible_fqdn }}</td>
+          <td>{{ data.ansible_facts.memfree_mb }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

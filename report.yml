@@ -1,0 +1,13 @@
+---
+- hosts: rhel
+  name: Collection phase
+
+- hosts: localhost
+  name: Reporting phase
+  gather_facts: no
+  tasks:
+  - name: Generate the report based on the gathered facts using a template
+    template:
+      src: report.j2
+      dest: report.html
+
